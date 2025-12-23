@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex 휴가 신청 프로세스 안내</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- [수정됨] 이미지 에러 핸들링 함수를 상단으로 이동 -->
+    <script>
+        function showPlaceholder(img, filename) {
+            img.style.display = 'none';
+            // Show the next sibling which is the placeholder div
+            if (img.nextElementSibling && img.nextElementSibling.classList.contains('step-img-placeholder')) {
+                img.nextElementSibling.style.display = 'flex';
+            }
+        }
+    </script>
+
+    <style>
+        /* --- 1. GLOBAL STYLES --- */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e5e7eb;
+            --text-sub: #9ca3af;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #333;
+            --input-bg: #2a2a2a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- 2. NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 15px 0;
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo { font-size: 20px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .logo i { color: var(--accent); }
+        
+        .nav-menu { display: flex; gap: 30px; }
+        .nav-menu a { color: var(--text-sub); text-decoration: none; font-weight: 500; transition: 0.3s; font-size: 15px; }
+        .nav-menu a:hover { color: var(--accent); }
+
+        /* --- 3. LAYOUT UTILITIES --- */
+        section { padding: 100px 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 1000px; width: 100%; }
+        
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .badge { background: rgba(59, 130, 246, 0.1); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 700; display: inline-block; margin-bottom: 15px; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .section-title { font-size: 40px; font-weight: 700; color: #fff; margin-bottom: 15px; }
+        .section-desc { color: var(--text-sub); font-size: 18px; max-width: 600px; margin: 0 auto; }
+
+        /* --- 4. HERO SECTION --- */
+        #home {
+            min-height: 90vh;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.08) 0%, rgba(18, 18, 18, 0) 60%);
+            text-align: center;
+            padding-top: 120px;
+        }
+        .hero-title {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            word-break: keep-all;
+        }
+        .hero-text { 
+            font-size: 22px; 
+            color: var(--text-sub); 
+            margin-bottom: 40px; 
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            word-break: keep-all;
+        }
+        .btn-cta {
+            background: var(--accent);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4); background: var(--accent-hover); }
+
+        /* --- 5. CARDS (Background) --- */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .card:hover { border-color: #555; transform: translateY(-5px); }
+        .card-icon { font-size: 40px; margin-bottom: 20px; }
+        .card h3 { font-size: 24px; margin-bottom: 10px; color: #fff; }
+        .card p { color: var(--text-sub); }
+
+        /* --- 6. TABLE (Comparison) --- */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #252525; padding: 20px; text-align: left; color: #aaa; font-weight: 600; }
+        td { padding: 25px 20px; border-bottom: 1px solid var(--border); color: #ddd; font-size: 17px; }
+        tr:last-child td { border-bottom: none; }
+        .old-val { text-decoration: line-through; color: #666; margin-right: 8px; font-size: 15px; }
+        .new-val { color: var(--accent); font-weight: 700; }
+
+        /* --- 7. STEPS (Guide) --- */
+        .step-list { display: flex; gap: 20px; flex-wrap: wrap; }
+        .step-item {
+            flex: 1;
+            min-width: 250px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+        }
+        .step-num {
+            width: 36px; height: 36px; background: var(--accent); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; margin-bottom: 20px;
+        }
+        .step-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: white; }
+        .step-desc { font-size: 15px; color: var(--text-sub); }
+        .step-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #444;
+            display: block;
+            background: #000;
+        }
+        .step-img-placeholder {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px dashed #444;
+            display: none; /* JS로 제어 */
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            background: #1a1a1a;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .alert-box {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            color: #facc15;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: flex; gap: 10px; align-items: start;
+        }
+
+        /* --- 9. AI CHAT WIDGET --- */
+        #ai-trigger {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 26px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.5);
+            border: none; z-index: 2000;
+            transition: transform 0.3s;
+        }
+        #ai-trigger:hover { transform: scale(1.1); }
+
+        #chat-window {
+            position: fixed;
+            bottom: 100px; right: 30px;
+            width: 360px; height: 500px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            overflow: hidden;
+        }
+        .chat-header { background: #2a2a2a; padding: 15px 20px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 10px 14px; border-radius: 12px; font-size: 14px; max-width: 85%; line-height: 1.5; }
+        .bot { background: #333; color: #eee; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .loading { color: #888; font-size: 12px; font-style: italic; align-self: flex-start; }
+        
+        .chat-input-area { padding: 15px; background: #2a2a2a; display: flex; gap: 10px; border-top: 1px solid #444; }
+        .chat-input { flex: 1; background: #111; border: 1px solid #444; padding: 10px 15px; border-radius: 20px; color: white; outline: none; }
+        .chat-send { background: var(--accent); border: none; width: 36px; height: 36px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .hero-title { font-size: 40px; }
+            .step-item { min-width: 100%; }
+            #chat-window { width: 90%; right: 5%; bottom: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo"><i class="fa-solid fa-layer-group"></i> HR Portal</a>
+            <div class="nav-menu">
+                <a href="#why">배경</a>
+                <a href="#compare">비교</a>
+                <a href="#guide">가이드</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="home">
+        <div class="container">
+            <h1 class="hero-title">휴가 신청 프로세스,<br>더 편리해졌습니다.</h1>
+            <p class="hero-text">워크플로우 문서 작성의 번거로움은 줄이고, 자동 반영으로 정확성은 높였습니다.<br>클릭 몇 번으로 완성되는 스마트한 연차 관리, 지금 바로 시작하세요!</p>
+            <a href="#guide" class="btn-cta">신청 방법 바로보기 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- 1. WHY -->
+    <section id="why">
+        <div class="container">
+            <div class="section-header">
+                <span class="badge">추진 배경</span>
+                <h2 class="section-title">왜 바뀌나요?</h2>
+                <p class="section-desc">기존 수기 방식의 한계를 넘어, 정확한 연차 관리와 업무 효율을 동시에 잡았습니다.</p>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-file-pen" style="color: #ef4444;"></i></div>
+                    <h3>기존 (As-Is)</h3>
+                    <p style="word-break: keep-all;">휴가 탭이 아닌 워크플로우로 문서를 작성, 제출해야 하는 번거로움이 있었고, 인사팀이 일일이 수기로 등록하여 누락 등 오류가 발생할 가능성이 있었습니다.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-rocket" style="color: #22c55e;"></i></div>
+                    <h3>개선 (To-Be)</h3>
+                    <p style="word-break: keep-all;">신청과 승인 즉시 시스템에 자동 반영되어 <strong>정확도 100%</strong>, 실시간 관리가 가능해집니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. COMPARE -->
+    <section id="compare" style="background: rgba(255,255,255,0.02);">
+        <div class="container">
+            <div class="section-header">
+                <span class="badge">프로세스 비교</span>
+                <h2 class="section-title">무엇이 달라지나요?</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="20%">구분</th>
+                            <th width="40%">기존 방식</th>
+                            <th width="40%">개선 방식</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>신청 경로</td>
+                            <td><span class="old-val">워크플로우 결재</span></td>
+                            <td><span class="new-val">[휴가] 탭 직접 신청</span></td>
+                        </tr>
+                        <tr>
+                            <td>데이터 반영</td>
+                            <td><span class="old-val">관리자 수기 입력</span></td>
+                            <td><span class="new-val">시스템 자동 차감</span></td>
+                        </tr>
+                        <tr>
+                            <td>건강검진</td>
+                            <td><span class="old-val">별도 공가 신청</span></td>
+                            <td><span class="new-val">[휴가] 탭에서 원스톱 처리</span></td>
+                        </tr>
+                        <tr>
+                            <td>상세 설정</td>
+                            <td><span class="old-val">구분 모호</span></td>
+                            <td><span class="new-val">[상세 일정 편집]으로 정밀 관리</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 30px; text-align: center; color: #999; font-size: 14px;">
+                <i class="fa-solid fa-circle-info"></i> 업무 대리 신청 및 대체휴무는 기존 <strong>워크플로우</strong> 방식을 유지합니다.
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. GUIDE -->
+    <section id="guide">
+        <div class="container">
+            <div class="section-header">
+                <span class="badge">사용 가이드</span>
+                <h2 class="section-title">이렇게 신청하세요</h2>
+                <p class="section-desc">복잡한 결재선 없이, 딱 4단계면 끝납니다.</p>
+            </div>
+            <div class="step-list">
+                <!-- STEP 1 -->
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-title">메뉴 진입</div>
+                    <p class="step-desc">Flex 왼쪽 사이드바에서 <strong>[휴가]</strong> 탭을 누르고, <strong>[연차]</strong>, <strong>[건강검진]</strong> 등 해당하는 카드를 클릭하세요.</p>
+                    
+                    <!-- 이미지 1 -->
+                    <img src="휴가 1.png" alt="메뉴 진입 화면" class="step-img" onerror="showPlaceholder(this, '휴가 1.png')">
+                    <div class="step-img-placeholder">
+                        <i class="fa-regular fa-image" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+                        <strong>휴가 1.png</strong><br>이미지 파일을 같은 폴더에 넣어주세요.
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-title">일정 선택</div>
+                    <p class="step-desc">달력에서 휴가를 원하는 날짜를 선택하세요. 연속된 날짜도 한 번에 선택 가능합니다.</p>
+                    
+                    <!-- 이미지 2 -->
+                    <img src="휴가 2.png" alt="일정 선택 화면" class="step-img" onerror="showPlaceholder(this, '휴가 2.png')">
+                    <div class="step-img-placeholder">
+                        <i class="fa-regular fa-image" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+                        <strong>휴가 2.png</strong><br>이미지 파일을 같은 폴더에 넣어주세요.
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step-item" style="border-color: var(--accent);">
+                    <div class="step-num">3</div>
+                    <div class="step-title" style="color: var(--accent);">상세 일정 편집 (중요)</div>
+                    <p class="step-desc">오전/오후 반차를 사용할 경우, 연차와 반차를 함께 사용할 경우에는 <strong>[상세 일정 편집]</strong>을 해주세요.</p>
+                    <div class="alert-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>미설정 시 종일 휴가로 차감됩니다.</span>
+                    </div>
+
+                    <!-- 이미지 3 -->
+                    <img src="휴가 3.png" alt="상세 일정 편집 화면" class="step-img" onerror="showPlaceholder(this, '휴가 3.png')">
+                    <div class="step-img-placeholder">
+                        <i class="fa-regular fa-image" style="font-size:30px; display:block; margin-bottom:10px;"></i>
+                        <strong>휴가 3.png</strong><br>이미지 파일을 같은 폴더에 넣어주세요.
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="step-item">
+                    <div class="step-num">4</div>
+                    <div class="step-title">승인자 추가 (필수)</div>
+                    <p class="step-desc">신청 화면 하단 <strong>1단계 승인자</strong> 항목에 본인의 <strong>업무대리인</strong>을 검색하여 반드시 추가해주세요.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHATBOT -->
+    <button id="ai-trigger" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></button>
+
+    <div id="chat-window">
+        <div class="chat-header">
+            <strong style="color:white;"><i class="fa-solid fa-sparkles" style="color:#60a5fa;"></i> AI 규정 도우미</strong>
+            <i class="fa-solid fa-xmark" style="color:#999; cursor:pointer;" onclick="toggleChat()"></i>
+        </div>
+        <div class="chat-body" id="chat-messages">
+            <div class="message bot">안녕하세요! 👋<br>새로운 휴가 신청 방식에 대해 무엇이든 물어보세요.</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="예: 반차 신청은 어떻게 해?" onkeypress="handleEnter(event)">
+            <button class="chat-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        const apiKey = "AIzaSyC8vep1Ljrdfdx9ubyB-LYbpbz5IJ5QcII"; // Gemini API 키
+
+        const systemPromptChat = `
+        당신은 사내 휴가 규정 안내 AI입니다.
+        [핵심 변경 사항]
+        1. 신청 경로: 워크플로우 아님 -> [휴가] 탭에서 직접 신청.
+        2. 중요: [상세 일정 편집] 기능을 통해 반차/시간차를 설정해야 함. 안 하면 하루 통째로 차감됨.
+        3. 승인 절차: 신청 시 1단계 승인자로 '업무대리인'을 반드시 추가해야 함.
+        4. 반차 시 우측 '컵 모양(☕️)' 아이콘으로 휴게시간 설정 필수.
+        5. 건강검진: 기존에는 공가로 별도 신청했으나, 이제는 [휴가] 탭에서 신청/지급/등록이 한 번에 가능함.
+        6. 대리 신청, 대체휴무는 기존대로 워크플로우 사용.
+        
+        [답변 가이드]
+        - 답변은 **자연스럽고 매끄러운 대화체**로 작성하세요.
+        - **핵심만 요약하여 간결하게(3~4문장 내외)** 답변하세요.
+        - 친절한 톤을 유지하세요.
+        `;
+
+        // --- Chat Functions ---
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            if(win.style.display === 'flex') win.style.display = 'none';
+            else { win.style.display = 'flex'; document.getElementById('chat-input').focus(); }
+        }
+
+        function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
+
+        function appendMsg(text, type) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerHTML = text;
+            const body = document.getElementById('chat-messages');
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendMsg(text, 'user');
+            input.value = '';
+
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.textContent = 'AI가 답변을 생성 중입니다...';
+            document.getElementById('chat-messages').appendChild(loading);
+
+            try {
+                const response = await callGemini(text, systemPromptChat);
+                document.getElementById('chat-messages').removeChild(loading);
+                appendMsg(response, 'bot');
+            } catch (err) {
+                document.getElementById('chat-messages').removeChild(loading);
+                appendMsg("API 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 'bot');
+            }
+        }
+
+        // --- Common API Call ---
+        async function callGemini(userQuery, systemInstructionText) {
+            if(!apiKey) {
+                return "현재 데모 버전으로 실행 중입니다. (API 키 미설정)<br><br>핵심 규정 요약:<br>1. <strong>[휴가] 탭</strong>에서 직접 신청<br>2. <strong>[상세 일정 편집]</strong> 필수 (반차/시간차)<br>3. <strong>1단계 승인자</strong>에 업무대리인 지정 필수<br><br>실제 AI 답변을 원하시면 코드 내 <code>apiKey</code> 변수에 Gemini API 키를 입력해주세요.";
+            }
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstructionText }] }
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+    </script>
+</body>
+</html>
